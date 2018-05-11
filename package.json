@@ -1,0 +1,24 @@
+{
+  "name": "commentarchiver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "commentarchiver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Knu334/CommentArchiver.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Knu334/CommentArchiver/issues"
+  },
+  "homepage": "https://github.com/Knu334/CommentArchiver#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "request": "^2.85.0",
+    "websocket": "^1.0.26"
+  }
+}
