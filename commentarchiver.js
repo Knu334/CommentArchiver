@@ -1,5 +1,6 @@
 var WebSocketClient = require('websocket').client;
 var request = require('request');
+var fs = require('fs');
 
 var client = new WebSocketClient();
 
@@ -8,20 +9,35 @@ client.on('connectFailed', function(error) {
 });
 
 client.on('connect', function(connection) {
+	var header = null;
+	var currentIndex = 0;
+	var startTime = new Date();
+	var tempArray = new Array();
+	var commentArray = new Array();
+	var interval = null;
+
 	connection.on('error', function(error) {
+		if (interval != null) {
+			clearInterval(interval);
+		}
 		console.log('Connection error: ' + error.toString());
 	});
 
 	connection.on('close', function() {
+		if (interval != null) {
+			clearInterval(interval);
+		}
+		fs.writeFileSync('comment.json', JSON.stringify(commentArray));
 		console.log('close');
 	});
 
-	var header = null;
 	connection.on('message', function(message) {
 		var strMsg = JSON.stringify(message.utf8Data);
 
 		try {
-			objMsg = JSON.parse(strMsg.substring(strMsg.indexOf('{'), strMsg.lastIndexOf('}') + 1).replace(/\\+\"/g, '\"').replace(/\\+(u\w{4})/g, '\\$1'));
+			objMsg = JSON.parse(strMsg.substring(strMsg.indexOf('{'), strMsg.lastIndexOf('}') + 1)
+						.replace(/\\+\"/g, '\"')
+						.replace(/\\+(u\w{4})/g, '\\$1'));
 		} catch(e) {
 			objMsg = {};
 		}
@@ -35,7 +51,15 @@ client.on('connect', function(connection) {
 		}
 
 		if (objMsg.type == 0 && objMsg.data.stamp == null) {
-			console.log(objMsg.data.message);
+			var currentTime = new Date();
+			var gapTime = (currentTime.getTime() - startTime.getTime()) / 1000;
+			var element = [objMsg.data.message, gapTime];
+			for ( ; currentIndex < Math.floor(gapTime); currentIndex++) {
+				commentArray[currentIndex] = tempArray;
+				tempArray = new Array();
+			}
+			tempArray.push(element);
+			//console.log(JSON.stringify(commentArray));
 		}
 	});
 });
